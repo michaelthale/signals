@@ -174,7 +174,7 @@ function sideCards(){
 function todo(){const R=an[state.coin+state.tf];if(!R)return;const p=R.price,z=R.ez,el=$("#todo");let t,c,sub="";
   const zs=`${fmt(z.lo)}–${fmt(z.hi)}`;
   if(R.bias.startsWith("AVOID")||(R.bias==="NEUTRAL"&&R.cur.s<50)||p<R.stop){t="NO SETUP / STAY OUT";c="#8a96b8";sub="No trade right now. Nothing to do.";}
-  else if(p>=z.lo&&p<=z.hi){t="BUY NOW: price is in the buy zone";c=C.g;sub=`Zone ${zs} · stop ${fmt(R.stop)} · take profit ${fmt(R.tp1)}`;}
+  else if(p>=z.lo&&p<=z.hi){t="BUY NOW: price is in the buy zone";c=C.g;sub=`Confirm with a bullish ${state.tf.toUpperCase()} candle close. Zone ${zs} · stop ${fmt(R.stop)} · take profit ${fmt(R.tp1)}`;}
   else if(p>z.hi){t=`WAIT: price is above the buy zone, buy only if it drops to ${zs}`;c=C.y;sub=`Needs to fall ${((p-z.hi)/p*100).toFixed(2)}% to reach the zone. Don't buy up here.`;}
   else{t=`WAIT: price is below the buy zone`;c=C.y;sub=`Buy only after it climbs back into ${zs}.`;}
   el.style.borderColor=c;el.style.boxShadow=`0 0 18px ${c}55`;
