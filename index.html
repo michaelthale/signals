@@ -19,7 +19,7 @@ h1 b{color:var(--p);text-shadow:0 0 10px var(--p)}
 button{font:inherit;background:#0b1530;color:var(--t);border:1px solid var(--bd);border-radius:6px;padding:6px 12px;cursor:pointer}
 button.on{border-color:var(--c);color:var(--c);box-shadow:0 0 10px #22e6ff66}button.coin.on{border-color:var(--g);color:var(--g);box-shadow:0 0 10px #39ff8866}
 .grid{display:grid;grid-template-columns:1fr 330px;gap:12px;margin:0 16px}
-@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.grid>*{min-width:0}@media(max-width:900px){.grid{grid-template-columns:minmax(0,1fr)}}html,body{overflow-x:hidden}
 #chartwrap{position:relative;padding:6px}#main{height:470px;position:relative}#rsi,#macd{height:110px;border-top:1px dashed var(--bd)}
 @media(max-width:600px){#main{height:360px}#rsi,#macd{height:85px}h1{font-size:16px}}
 #ov{position:absolute;left:0;top:0;pointer-events:none;z-index:3}
