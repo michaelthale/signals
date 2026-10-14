@@ -37,7 +37,7 @@ footer{margin:16px;padding:12px;font-size:11px;color:var(--m);line-height:1.6}
 #lybtn{position:absolute;right:76px;top:8px;z-index:6;padding:3px 8px;font-size:11px}
 #layers{display:none;position:absolute;right:76px;top:34px;z-index:6;padding:8px 10px;font-size:11px;background:#05070ff2;border:1px solid var(--bd);border-radius:8px}
 #layers.open{display:block}#layers label{display:block;padding:2px 0;cursor:pointer}
-@media(max-width:600px){#todo{font-size:13px}}
+@media(max-width:600px){#todo{font-size:13px}#lybtn{left:12px;right:auto;top:26px}#layers{left:12px;right:auto;top:52px}}
 </style></head><body>
 <header><h1>NEON<b>//</b>SIGNALS</h1><div><span class="live" id="livetxt">LIVE</span> <span class="k2" id="clock"></span></div></header>
 <div id="macro" class="panel"><span class="k2">loading macro…</span></div>
@@ -56,4 +56,4 @@ footer{margin:16px;padding:12px;font-size:11px;color:var(--m);line-height:1.6}
 <b style="color:var(--y)">NOT FINANCIAL ADVICE.</b> These are rules-based, probabilistic signals computed automatically from public market data. They are wrong often. Markers are drawn only with data available at that bar (no look-ahead); the backtest replays each past BUY with its stop and a 2R target on the loaded candles (if the stop and target are both hit in the same candle, it counts as a loss). Funding and macro use the latest values only, so history is scored without them. Past hit-rate does not predict future results.<br>
 Data: Binance spot (BTC/ETH/XRP USDT, Coinbase fallback) · Gate.io (KAS/USDT) · OKX &amp; Gate.io perps (funding, OI) · Yahoo Finance (DXY, S&amp;P 500, Nasdaq) · CoinGecko (BTC dominance) · alternative.me (Fear &amp; Greed). Context updated hourly: <span id="ctxu">–</span>
 </footer>
-<script src="app.js?v=2"></script></body></html>
+<script src="app.js?v=3"></script></body></html>

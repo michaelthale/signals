@@ -113,7 +113,7 @@ let plines=[];
 function ln(arr,k){return arr.map((v,i)=>v==null?{time:k[i].time}:{time:k[i].time,value:v});}
 function render(){
   const R=an[state.coin+state.tf];if(!R)return;const k=R.k,pf=R.price<1?{type:"price",precision:5,minMove:1e-5}:R.price<10?{type:"price",precision:4,minMove:1e-4}:{type:"price",precision:2,minMove:.01};
-  S.cs.applyOptions({priceFormat:pf});S.cs.setData(k.map(({time,open,high,low,close})=>({time,open,high,low,close})));
+  S.cs.applyOptions({priceFormat:pf,autoscaleInfoProvider:orig=>{const r=orig();if(!r||!r.priceRange)return r;r.priceRange.minValue=Math.min(r.priceRange.minValue,R.stop);r.priceRange.maxValue=Math.max(r.priceRange.maxValue,R.tp2);return r;}});S.cs.setData(k.map(({time,open,high,low,close})=>({time,open,high,low,close})));
   S.vol.setData(k.map(b=>({time:b.time,value:b.volume,color:b.close>=b.open?"#39ff8855":"#ff3b5c55"})));
   S.e20.setData(ln(R.e20,k));S.e50.setData(ln(R.e50,k));S.e200.setData(ln(R.e200,k));S.vw.setData(ln(R.VW,k));
   S.bu.setData(ln(R.B.map(x=>x&&x.u),k));S.bl.setData(ln(R.B.map(x=>x&&x.l),k));
