@@ -1,0 +1,15 @@
+name: hourly-context
+on:
+  schedule: [{cron: "7 * * * *"}]
+  workflow_dispatch:
+permissions: {contents: write}
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 update_context.py
+      - run: |
+          git config user.name "signals-bot"; git config user.email "actions@users.noreply.github.com"
+          git add data/context.json
+          git diff --cached --quiet || (git commit -m "hourly context" && git push)
