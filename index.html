@@ -1,0 +1,52 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NEON SIGNALS · BTC ETH KAS XRP</title>
+<meta property="og:title" content="NEON SIGNALS — live confluence charts for BTC, ETH, KAS, XRP">
+<script src="lightweight-charts.js"></script>
+<style>
+:root{--bg:#05070f;--g:#39ff88;--r:#ff3b5c;--c:#22e6ff;--p:#b45cff;--y:#ffd447;--t:#d8e6ff;--m:#6f80aa;--pan:#08101fcc;--bd:#1b2a55}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--t);font-family:"JetBrains Mono","Fira Code",ui-monospace,Menlo,Consolas,monospace;font-size:13px}
+body:before{content:"";position:fixed;inset:0;z-index:-2;background:radial-gradient(1px 1px at 10% 20%,#fff8,transparent),radial-gradient(1px 1px at 70% 30%,#fff6,transparent),radial-gradient(1px 1px at 40% 80%,#fff5,transparent),radial-gradient(1.5px 1.5px at 85% 70%,#22e6ff88,transparent),radial-gradient(1px 1px at 25% 55%,#b45cff88,transparent),radial-gradient(ellipse at 50% -20%,#1b2a5588,transparent 60%);background-size:300px 300px,420px 420px,360px 360px,500px 500px,260px 260px,100% 100%}
+body:after{content:"";position:fixed;inset:0;z-index:-1;background-image:linear-gradient(#22e6ff0d 1px,transparent 1px),linear-gradient(90deg,#22e6ff0d 1px,transparent 1px);background-size:40px 40px;pointer-events:none}
+header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;flex-wrap:wrap;gap:8px}
+h1{margin:0;font-size:20px;letter-spacing:3px;color:var(--c);text-shadow:0 0 8px var(--c),0 0 20px #22e6ff66}
+h1 b{color:var(--p);text-shadow:0 0 10px var(--p)}
+.live{color:var(--g);text-shadow:0 0 6px var(--g)}.live:before{content:"● ";animation:bl 1.2s infinite}@keyframes bl{50%{opacity:.2}}
+.panel{background:var(--pan);border:1px solid var(--bd);border-radius:10px;box-shadow:0 0 18px #22e6ff14,inset 0 0 20px #b45cff0d}
+#macro{display:flex;gap:8px;overflow-x:auto;margin:0 16px;padding:8px}
+.mc{min-width:110px;padding:6px 10px;border-left:2px solid var(--p);white-space:nowrap}.mc .k{color:var(--m);font-size:10px;letter-spacing:1px}.mc .v{font-size:14px}
+.up{color:var(--g);text-shadow:0 0 6px #39ff8866}.dn{color:var(--r);text-shadow:0 0 6px #ff3b5c66}.nt{color:var(--y)}
+#bar{display:flex;gap:6px;flex-wrap:wrap;margin:10px 16px;align-items:center}
+button{font:inherit;background:#0b1530;color:var(--t);border:1px solid var(--bd);border-radius:6px;padding:6px 12px;cursor:pointer}
+button.on{border-color:var(--c);color:var(--c);box-shadow:0 0 10px #22e6ff66}button.coin.on{border-color:var(--g);color:var(--g);box-shadow:0 0 10px #39ff8866}
+.grid{display:grid;grid-template-columns:1fr 330px;gap:12px;margin:0 16px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+#chartwrap{position:relative;padding:6px}#main{height:470px;position:relative}#rsi,#macd{height:110px;border-top:1px dashed var(--bd)}
+@media(max-width:600px){#main{height:360px}#rsi,#macd{height:85px}h1{font-size:16px}}
+#ov{position:absolute;left:0;top:0;pointer-events:none;z-index:3}
+#tip{position:absolute;display:none;z-index:5;max-width:280px;padding:8px 10px;font-size:11px;background:#05070ff0;border:1px solid var(--c);border-radius:8px;box-shadow:0 0 14px #22e6ff55;pointer-events:none}
+#legend{position:absolute;left:12px;top:8px;z-index:4;font-size:11px;pointer-events:none}
+.side{display:flex;flex-direction:column;gap:12px}
+.card{padding:12px}.card h3{margin:0 0 6px;letter-spacing:2px;font-size:14px;display:flex;justify-content:space-between}
+.bias{font-size:20px;font-weight:700}.row{display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid #1a234266}
+.ring{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;font-size:18px;font-weight:700}
+.mini{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.mini .card{padding:8px;cursor:pointer}.mini .card:hover{border-color:var(--c)}
+.reason{font-size:11px;color:var(--m);margin-top:6px;line-height:1.5}.reason b{color:var(--t);font-weight:400}
+footer{margin:16px;padding:12px;font-size:11px;color:var(--m);line-height:1.6}
+.k2{color:var(--m)}
+</style></head><body>
+<header><h1>NEON<b>//</b>SIGNALS</h1><div><span class="live" id="livetxt">LIVE</span> <span class="k2" id="clock"></span></div></header>
+<div id="macro" class="panel"><span class="k2">loading macro…</span></div>
+<div id="bar">
+ <button class="coin on" data-c="BTC">BTC</button><button class="coin" data-c="ETH">ETH</button><button class="coin" data-c="KAS">KAS</button><button class="coin" data-c="XRP">XRP</button>
+ <span style="width:12px"></span>
+ <button class="tf" data-t="1h">1H</button><button class="tf on" data-t="4h">4H</button><button class="tf" data-t="1d">1D</button>
+</div>
+<div class="grid">
+ <div id="chartwrap" class="panel"><div id="legend"></div><div id="main"><canvas id="ov"></canvas></div><div id="rsi"></div><div id="macd"></div><div id="tip"></div></div>
+ <div class="side"><div id="setup" class="panel card">…</div><div id="bt" class="panel card">…</div><div class="mini" id="mini"></div></div>
+</div>
+<footer class="panel">
+<b style="color:var(--y)">NOT FINANCIAL ADVICE.</b> These are rules-based, probabilistic signals computed automatically from public market data. They are wrong often. Markers are drawn only with data available at that bar (no look-ahead); the backtest replays each past BUY with its stop and a 2R target on the loaded candles (if the stop and target are both hit in the same candle, it counts as a loss). Funding and macro use the latest values only, so history is scored without them. Past hit-rate does not predict future results.<br>
+Data: Binance spot (BTC/ETH/XRP USDT, Coinbase fallback) · Gate.io (KAS/USDT) · OKX &amp; Gate.io perps (funding, OI) · Yahoo Finance (DXY, S&amp;P 500, Nasdaq) · CoinGecko (BTC dominance) · alternative.me (Fear &amp; Greed). Context updated hourly: <span id="ctxu">–</span>
+</footer>
+<script src="app.js"></script></body></html>
