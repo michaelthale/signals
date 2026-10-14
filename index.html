@@ -33,6 +33,11 @@ button.on{border-color:var(--c);color:var(--c);box-shadow:0 0 10px #22e6ff66}but
 .reason{font-size:11px;color:var(--m);margin-top:6px;line-height:1.5}.reason b{color:var(--t);font-weight:400}
 footer{margin:16px;padding:12px;font-size:11px;color:var(--m);line-height:1.6}
 .k2{color:var(--m)}
+#todo{margin:0 16px 10px;padding:10px 14px;font-size:15px;font-weight:700}#todo .k2{font-size:10px;letter-spacing:2px;font-weight:400}
+#lybtn{position:absolute;right:76px;top:8px;z-index:6;padding:3px 8px;font-size:11px}
+#layers{display:none;position:absolute;right:76px;top:34px;z-index:6;padding:8px 10px;font-size:11px;background:#05070ff2;border:1px solid var(--bd);border-radius:8px}
+#layers.open{display:block}#layers label{display:block;padding:2px 0;cursor:pointer}
+@media(max-width:600px){#todo{font-size:13px}}
 </style></head><body>
 <header><h1>NEON<b>//</b>SIGNALS</h1><div><span class="live" id="livetxt">LIVE</span> <span class="k2" id="clock"></span></div></header>
 <div id="macro" class="panel"><span class="k2">loading macro…</span></div>
@@ -41,8 +46,10 @@ footer{margin:16px;padding:12px;font-size:11px;color:var(--m);line-height:1.6}
  <span style="width:12px"></span>
  <button class="tf" data-t="1h">1H</button><button class="tf on" data-t="4h">4H</button><button class="tf" data-t="1d">1D</button>
 </div>
+<div id="todo" class="panel">…</div>
 <div class="grid">
- <div id="chartwrap" class="panel"><div id="legend"></div><div id="main"><canvas id="ov"></canvas></div><div id="rsi"></div><div id="macd"></div><div id="tip"></div></div>
+ <div id="chartwrap" class="panel"><div id="legend"></div><button id="lybtn">☰ Layers</button><div id="layers">
+<label><input type="checkbox" data-l="hist"> Past signals (dots)</label><label><input type="checkbox" data-l="sr"> Swing S/R</label><label><input type="checkbox" data-l="pdw"> Prior day/week H/L</label><label><input type="checkbox" data-l="vp"> Volume profile / HVN</label><label><input type="checkbox" data-l="bb"> Bollinger Bands</label><label><input type="checkbox" data-l="vw"> VWAP</label></div><div id="main"><canvas id="ov"></canvas></div><div id="rsi"></div><div id="macd"></div><div id="tip"></div></div>
  <div class="side"><div id="setup" class="panel card">…</div><div id="bt" class="panel card">…</div><div class="mini" id="mini"></div></div>
 </div>
 <footer class="panel">

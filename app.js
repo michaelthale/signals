@@ -1,7 +1,7 @@
 "use strict";
 const COINS=["BTC","ETH","KAS","XRP"], TFS={"1h":3600,"4h":14400,"1d":86400}, HTF={"1h":"4h","4h":"1d","1d":"1d"};
 const C={g:"#39ff88",r:"#ff3b5c",c:"#22e6ff",p:"#b45cff",y:"#ffd447",m:"#6f80aa",t:"#d8e6ff"};
-let state={coin:"BTC",tf:"4h"}, cache={}, ctx=null, an={};
+let state={coin:"BTC",tf:"4h"}, LY={bb:false,vw:false,vp:false,sr:false,pdw:false,hist:false}, cache={}, ctx=null, an={};
 const $=s=>document.querySelector(s);
 const fmt=(v)=>v==null||isNaN(v)?"–":v>=1000?v.toLocaleString(undefined,{maximumFractionDigits:0}):v>=10?v.toFixed(2):v>=1?v.toFixed(3):v.toFixed(5);
 
@@ -102,7 +102,7 @@ const mainEl=$("#main"),ch=LW.createChart(mainEl,{...base,autoSize:true});
 const rc=LW.createChart($("#rsi"),{...base,autoSize:true,timeScale:{visible:false}}),mc=LW.createChart($("#macd"),{...base,autoSize:true,timeScale:{visible:false}});
 const S={cs:ch.addCandlestickSeries({upColor:C.g,downColor:C.r,wickUpColor:C.g,wickDownColor:C.r,borderVisible:false}),
  vol:ch.addHistogramSeries({priceScaleId:"v",priceFormat:{type:"volume"},lastValueVisible:false,priceLineVisible:false}),
- e20:ch.addLineSeries({color:C.c,lineWidth:1,priceLineVisible:false,lastValueVisible:false}),e50:ch.addLineSeries({color:C.p,lineWidth:2,priceLineVisible:false,lastValueVisible:false}),e200:ch.addLineSeries({color:C.y,lineWidth:2,priceLineVisible:false,lastValueVisible:false}),
+ e20:ch.addLineSeries({color:"#22e6ff66",lineWidth:1,priceLineVisible:false,lastValueVisible:false}),e50:ch.addLineSeries({color:"#b45cff77",lineWidth:1,priceLineVisible:false,lastValueVisible:false}),e200:ch.addLineSeries({color:"#ffd44777",lineWidth:1,priceLineVisible:false,lastValueVisible:false}),
  vw:ch.addLineSeries({color:"#ffffffaa",lineWidth:1,lineStyle:2,priceLineVisible:false,lastValueVisible:false}),
  bu:ch.addLineSeries({color:"#22e6ff44",lineWidth:1,priceLineVisible:false,lastValueVisible:false}),bl:ch.addLineSeries({color:"#22e6ff44",lineWidth:1,priceLineVisible:false,lastValueVisible:false}),
  rsi:rc.addLineSeries({color:C.p,lineWidth:2,priceLineVisible:false}),mh:mc.addHistogramSeries({priceLineVisible:false,lastValueVisible:false}),mm:mc.addLineSeries({color:C.c,lineWidth:1,priceLineVisible:false,lastValueVisible:false}),ms:mc.addLineSeries({color:"#ff8a3d",lineWidth:1,priceLineVisible:false,lastValueVisible:false})};
@@ -118,15 +118,18 @@ function render(){
   S.e20.setData(ln(R.e20,k));S.e50.setData(ln(R.e50,k));S.e200.setData(ln(R.e200,k));S.vw.setData(ln(R.VW,k));
   S.bu.setData(ln(R.B.map(x=>x&&x.u),k));S.bl.setData(ln(R.B.map(x=>x&&x.l),k));
   S.rsi.setData(ln(R.R,k));S.mh.setData(R.M.h.map((v,i)=>v==null?{time:k[i].time}:{time:k[i].time,value:v,color:v>=0?"#39ff8899":"#ff3b5c99"}));S.mm.setData(ln(R.M.m,k));S.ms.setData(ln(R.M.sig,k));
-  S.cs.setMarkers(R.mk.map(({time,position,color,shape,text})=>({time,position,color,shape,text})));
+  S.vw.applyOptions({visible:LY.vw});S.bu.applyOptions({visible:LY.bb});S.bl.applyOptions({visible:LY.bb});
+  S.cs.setMarkers(LY.hist?R.mk.map(({time,position,color})=>({time,position,color,shape:"circle",size:0.5})):[]);
   plines.forEach(l=>S.cs.removePriceLine(l));plines=[];
   const add=(price,color,title,style=2)=>price&&plines.push(S.cs.createPriceLine({price,color,lineWidth:1,lineStyle:style,title,axisLabelVisible:true}));
-  if(R.pdw.pd){add(R.pdw.pd.h,"#ff8a3d","PDH");add(R.pdw.pd.l,"#22e6ff","PDL")}if(R.pdw.pw){add(R.pdw.pw.h,"#ff8a3d","PWH",1);add(R.pdw.pw.l,"#22e6ff","PWL",1)}
-  R.L.sup.slice(0,2).forEach(s=>add(s.p,"#39ff8899","S",0));R.L.res.slice(0,2).forEach(s=>add(s.p,"#ff3b5c99","R",0));
-  add(R.stop,C.r,"STOP",0);add(R.tp1,"#ff8a3d","TP1",0);add(R.tp2,"#ff8a3d","TP2",0);
+  const rr=x=>((x-R.eMid)/R.risk).toFixed(1);
+  if(LY.pdw){if(R.pdw.pd){add(R.pdw.pd.h,"#ff8a3d","PDH");add(R.pdw.pd.l,"#22e6ff","PDL")}if(R.pdw.pw){add(R.pdw.pw.h,"#ff8a3d","PWH",1);add(R.pdw.pw.l,"#22e6ff","PWL",1)}}
+  if(LY.sr){R.L.sup.slice(0,2).forEach(s=>add(s.p,"#39ff8899","S",0));R.L.res.slice(0,2).forEach(s=>add(s.p,"#ff3b5c99","R",0));}
+  add(R.stop,"#ff3b5c","STOP "+fmt(R.stop),0);add(R.tp1,"#ff9a3d","TP1 "+fmt(R.tp1)+" ("+rr(R.tp1)+"R)",0);add(R.tp2,"#ff9a3d","TP2 "+fmt(R.tp2)+" ("+rr(R.tp2)+"R)",0);
+  plines.push(S.cs.createPriceLine({price:R.ez.hi,color:"#39ff88",lineWidth:1,lineVisible:false,title:"BUY "+fmt(R.ez.lo)+"–"+fmt(R.ez.hi),axisLabelVisible:true}));
   const N=k.length;ch.timeScale().setVisibleLogicalRange({from:N-(innerWidth<600?90:160),to:N+8});
-  $("#legend").innerHTML=`<span style="color:${C.c}">EMA20</span> <span style="color:${C.p}">EMA50</span> <span style="color:${C.y}">EMA200</span> <span>VWAP┄</span> <span style="color:#22e6ff88">BB</span> · <span class="k2">${cache[state.coin+state.tf]?.src||""}</span>`;
-  sideCards();requestAnimationFrame(drawOv);
+  $("#legend").innerHTML=`<span style="color:${C.c}">EMA20</span> <span style="color:${C.p}">EMA50</span> <span style="color:${C.y}">EMA200</span> <span style="color:#39ff88">▮BUY</span> <span style="color:#ff3b5c">━STOP</span> <span style="color:#ff9a3d">━TP</span> · <span class="k2">${cache[state.coin+state.tf]?.src||""}</span>`;
+  sideCards();todo();requestAnimationFrame(drawOv);
 }
 // overlay: zones + volume profile
 const ov=$("#ov");
@@ -134,15 +137,15 @@ function drawOv(){
   const R=an[state.coin+state.tf];if(!R)return;const w=mainEl.clientWidth,h=mainEl.clientHeight,dpr=devicePixelRatio||1;ov.width=w*dpr;ov.height=h*dpr;ov.style.width=w+"px";ov.style.height=h+"px";
   const g=ov.getContext("2d");g.scale(dpr,dpr);g.clearRect(0,0,w,h);const y=p=>S.cs.priceToCoordinate(p);const pw=ch.priceScale("right").width(),W=w-pw;
   const band=(lo,hi,fill,stroke,label,x0=0)=>{const a=y(hi),b=y(lo);if(a==null||b==null)return;g.fillStyle=fill;g.fillRect(x0,a,W-x0,b-a);g.strokeStyle=stroke;g.setLineDash([4,4]);g.strokeRect(x0,a,W-x0,b-a);g.setLineDash([]);if(label){g.fillStyle=stroke;g.font="10px JetBrains Mono, monospace";g.fillText(label,x0+6,a+12)}};
-  R.vp.hvn.forEach(z=>band(z.lo,z.hi,"#b45cff12","#b45cff55","HVN liquidity"));
+  if(LY.vp)R.vp.hvn.forEach(z=>band(z.lo,z.hi,"#b45cff12","#b45cff55","HVN"));
   const x0=Math.max(0,(ch.timeScale().logicalToCoordinate(R.k.length-12)??W*0.7));
-  band(R.ez.lo,R.ez.hi,"#39ff8822",C.g,"BUY ZONE "+fmt(R.ez.lo)+"–"+fmt(R.ez.hi),x0);
-  band(R.tp1,R.tp2,"#ff8a3d1c","#ff8a3d","TP ZONE "+fmt(R.tp1)+"–"+fmt(R.tp2),x0);
+  {const a=y(R.ez.hi),b=y(R.ez.lo);if(a!=null&&b!=null){const hh=Math.max(2,b-a);g.fillStyle="#39ff882e";g.fillRect(x0,a,W-x0,hh);g.strokeStyle="#39ff88";g.lineWidth=1;g.strokeRect(x0+.5,a+.5,W-x0-1,hh-1);
+   g.font="bold 11px JetBrains Mono, monospace";const t="BUY ZONE";const tw=g.measureText(t).width;g.fillStyle="#05070fd0";g.fillRect(x0+4,a-16,tw+8,14);g.fillStyle="#39ff88";g.fillText(t,x0+8,a-5);}}
   // volume profile histogram on right
-  const vp=R.vp;vp.v.forEach((v,i)=>{const a=y(vp.lo+(i+1)*vp.w),b=y(vp.lo+i*vp.w);if(a==null||b==null)return;const L=v/vp.mx*W*0.18;g.fillStyle=vp.hvn.some(z=>Math.abs(z.lo-(vp.lo+i*vp.w))<vp.w/2)?"#b45cff66":"#22e6ff22";g.fillRect(W-L,a,L,Math.max(1,b-a-1))});
+  const vp=R.vp;if(LY.vp)vp.v.forEach((v,i)=>{const a=y(vp.lo+(i+1)*vp.w),b=y(vp.lo+i*vp.w);if(a==null||b==null)return;const L=v/vp.mx*W*0.18;g.fillStyle=vp.hvn.some(z=>Math.abs(z.lo-(vp.lo+i*vp.w))<vp.w/2)?"#b45cff66":"#22e6ff22";g.fillRect(W-L,a,L,Math.max(1,b-a-1))});
 }
 new ResizeObserver(()=>drawOv()).observe(mainEl);
-ch.subscribeCrosshairMove(e=>{const tip=$("#tip");const R=an[state.coin+state.tf];if(!e.time||!R||!e.point){tip.style.display="none";return}
+ch.subscribeCrosshairMove(e=>{const tip=$("#tip");const R=an[state.coin+state.tf];if(!e.time||!R||!e.point||!LY.hist){tip.style.display="none";return}
   const ms=R.mk.filter(m=>m.time===e.time);if(!ms.length){tip.style.display="none";return}tip.innerHTML=ms.map(m=>m._tip).join("<hr style='border-color:#1b2a55'>");tip.style.display="block";
   const x=Math.min(e.point.x+16,mainEl.clientWidth-290);tip.style.left=Math.max(4,x)+"px";tip.style.top=(e.point.y+20)+"px";});
 
@@ -168,6 +171,15 @@ function sideCards(){
   $("#mini").innerHTML=COINS.map(c=>{const x=an[c+state.tf];if(!x)return `<div class="panel card">${c} …</div>`;const cl=col(x.bias);return `<div class="panel card" data-c="${c}" style="border-color:${c===state.coin?C.c:""}"><div style="display:flex;justify-content:space-between"><b>${c}</b><span style="color:${cl}">${x.cur.s}</span></div><div>${fmt(x.price)}</div><div style="color:${cl};font-size:11px">${x.bias}</div></div>`}).join("");
   document.querySelectorAll("#mini .card[data-c]").forEach(e=>e.onclick=()=>setCoin(e.dataset.c));
 }
+function todo(){const R=an[state.coin+state.tf];if(!R)return;const p=R.price,z=R.ez,el=$("#todo");let t,c;
+  if(R.bias.startsWith("AVOID")||(R.bias==="NEUTRAL"&&R.cur.s<50)){t="No setup — stay out. Trend is not supporting a long.";c=C.m}
+  else if(p<R.stop){t="No setup — price is below the stop level. Stay out.";c=C.r}
+  else if(p>=z.lo&&p<=z.hi){t=`In the buy zone — buy only on a bullish ${state.tf.toUpperCase()} close. Stop ${fmt(R.stop)}, TP1 ${fmt(R.tp1)}.`;c=C.g}
+  else if(p<z.lo){t=`Wait — price is under the zone. Buy only after it closes back inside ${fmt(z.lo)}–${fmt(z.hi)}.`;c=C.y}
+  else{t=`Wait — buy only inside ${fmt(z.lo)}–${fmt(z.hi)}. Don't chase at ${fmt(p)}.`;c=C.y}
+  el.innerHTML=`<span class="k2">WHAT TO DO NOW · ${state.coin} ${state.tf.toUpperCase()}</span><div style="color:${c};text-shadow:0 0 8px ${c}66">${t}</div>`;}
+document.querySelectorAll("#layers input").forEach(i=>i.onchange=()=>{LY[i.dataset.l]=i.checked;render()});
+$("#lybtn").onclick=()=>$("#layers").classList.toggle("open");
 // ---------- MACRO ----------
 async function loadCtx(){try{ctx=await j("data/context.json?"+Date.now())}catch(e){ctx=null}
   if(!ctx){$("#macro").innerHTML='<span class="k2">macro context unavailable</span>';return}const m=ctx.macro,cell=(k,v,cls="")=>`<div class="mc"><div class="k">${k}</div><div class="v ${cls}">${v}</div></div>`,tr=x=>x?.trend==="up"?"up":x?.trend==="down"?"dn":"nt";
@@ -186,6 +198,6 @@ document.querySelectorAll(".coin").forEach(b=>b.onclick=()=>setCoin(b.dataset.c)
 document.querySelectorAll(".tf").forEach(b=>b.onclick=()=>{state.tf=b.dataset.t;document.querySelectorAll(".tf").forEach(x=>x.classList.toggle("on",x===b));refresh()});
 setInterval(()=>$("#clock").textContent=new Date().toLocaleTimeString(),1000);
 // live tick: update the last candle every 20s
-setInterval(async()=>{try{await compute(state.coin,state.tf,true);const R=an[state.coin+state.tf],lr=ch.timeScale().getVisibleLogicalRange();const b=R.k[R.k.length-1];S.cs.update({time:b.time,open:b.open,high:b.high,low:b.low,close:b.close});sideCards();drawOv();}catch(e){}},20000);
+setInterval(async()=>{try{await compute(state.coin,state.tf,true);const R=an[state.coin+state.tf],lr=ch.timeScale().getVisibleLogicalRange();const b=R.k[R.k.length-1];S.cs.update({time:b.time,open:b.open,high:b.high,low:b.low,close:b.close});sideCards();todo();drawOv();}catch(e){}},20000);
 setInterval(()=>refresh(true),300000);
 loadCtx().then(()=>refresh(true));
