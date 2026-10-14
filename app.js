@@ -88,7 +88,7 @@ function analyze(k,hk,tf,coin){
   // current setup
   const i=n-1,a=A[i],p=c[i],cur=score(i,true);const L=cur.L,vp=cur.vp,pdw=prevHL(k,tf);
   const supCands=[L.sup[0]?.p,vp.hvn.filter(h=>h.p<p).sort((x,y)=>y.p-x.p)[0]?.p,B[i]?.l,pdw.pd?.l<p?pdw.pd.l:null].filter(x=>x&&x<p&&p-x<6*a);
-  const zMid=supCands.length?Math.max(...supCands):p-a;const ez={lo:zMid-0.25*a,hi:Math.min(p,zMid+0.35*a)};
+  const zMid=supCands.length?Math.max(...supCands):p-a;const ez={lo:zMid-0.25*a,hi:zMid+0.35*a};
   const below=L.sup.find(s=>s.p<ez.lo-0.2*a);const stop=Math.min(ez.lo-0.6*a,below?below.p-0.25*a:ez.lo-0.6*a);const eMid=(ez.lo+ez.hi)/2,risk=eMid-stop;
   const resL=[...L.res.map(r=>r.p),pdw.pd?.h,pdw.pw?.h,...vp.hvn.filter(h=>h.p>p).map(h=>h.p)].filter(x=>x&&x>eMid+2*risk).sort((x,y)=>x-y);
   const tp1=Math.max(eMid+2*risk,resL[0]?Math.min(resL[0],eMid+2.5*risk):0)||eMid+2*risk;const tp2=Math.max(resL[1]||resL[0]||0,eMid+3*risk);
@@ -125,10 +125,10 @@ function render(){
   const rr=x=>((x-R.eMid)/R.risk).toFixed(1);
   if(LY.pdw){if(R.pdw.pd){add(R.pdw.pd.h,"#ff8a3d","PDH");add(R.pdw.pd.l,"#22e6ff","PDL")}if(R.pdw.pw){add(R.pdw.pw.h,"#ff8a3d","PWH",1);add(R.pdw.pw.l,"#22e6ff","PWL",1)}}
   if(LY.sr){R.L.sup.slice(0,2).forEach(s=>add(s.p,"#39ff8899","S",0));R.L.res.slice(0,2).forEach(s=>add(s.p,"#ff3b5c99","R",0));}
-  add(R.stop,"#ff3b5c","STOP "+fmt(R.stop),0);add(R.tp1,"#ff9a3d","TP1 "+fmt(R.tp1)+" ("+rr(R.tp1)+"R)",0);add(R.tp2,"#ff9a3d","TP2 "+fmt(R.tp2)+" ("+rr(R.tp2)+"R)",0);
+  add(R.stop,"#ff3b5c","STOP "+fmt(R.stop),0);add(R.tp1,"#ff9a3d","Take profit 1 "+fmt(R.tp1)+" ("+rr(R.tp1)+"R)",0);add(R.tp2,"#ff9a3d","Take profit 2 "+fmt(R.tp2)+" ("+rr(R.tp2)+"R)",0);
   plines.push(S.cs.createPriceLine({price:R.ez.hi,color:"#39ff88",lineWidth:1,lineVisible:false,title:"BUY "+fmt(R.ez.lo)+"–"+fmt(R.ez.hi),axisLabelVisible:true}));
   const N=k.length;ch.timeScale().setVisibleLogicalRange({from:N-(innerWidth<600?90:160),to:N+8});
-  $("#legend").innerHTML=`<span style="color:#ffffff">━PRICE</span> <span style="color:${C.p}">EMA50</span> <span style="color:#39ff88">▮BUY</span> <span style="color:#ff3b5c">━STOP</span> <span style="color:#ff9a3d">━TP</span> · <span class="k2">${cache[state.coin+state.tf]?.src||""}</span>`;
+  $("#legend").innerHTML=`<span style="color:#ffffff">━PRICE</span> <span style="color:${C.p}">EMA50</span> <span style="color:#39ff88">▮BUY</span> <span style="color:#ff3b5c">━STOP</span> <span style="color:#ff9a3d">━Take profit</span> · <span class="k2">${cache[state.coin+state.tf]?.src||""}</span>`;
   sideCards();todo();requestAnimationFrame(drawOv);
 }
 // overlay: zones + volume profile
@@ -158,8 +158,8 @@ function sideCards(){
   <div><div class="bias" style="color:${cc};text-shadow:0 0 8px ${cc}">${R.bias}</div><div class="k2">confluence score /100</div></div></div>
   <div style="margin-top:8px"><div class="row"><span class="k2">Entry zone</span><span class="up">${fmt(R.ez.lo)} – ${fmt(R.ez.hi)}</span></div>
   <div class="row"><span class="k2">Stop</span><span class="dn">${fmt(R.stop)}</span></div>
-  <div class="row"><span class="k2">TP1</span><span style="color:#ff8a3d">${fmt(R.tp1)} (${((R.tp1-R.eMid)/R.risk).toFixed(1)}R)</span></div>
-  <div class="row"><span class="k2">TP2</span><span style="color:#ff8a3d">${fmt(R.tp2)} (${((R.tp2-R.eMid)/R.risk).toFixed(1)}R)</span></div>
+  <div class="row"><span class="k2">Take profit 1</span><span style="color:#ff8a3d">${fmt(R.tp1)} (${((R.tp1-R.eMid)/R.risk).toFixed(1)}R)</span></div>
+  <div class="row"><span class="k2">Take profit 2</span><span style="color:#ff8a3d">${fmt(R.tp2)} (${((R.tp2-R.eMid)/R.risk).toFixed(1)}R)</span></div>
   <div class="row"><span class="k2">Risk to stop</span><span>${(R.risk/R.eMid*100).toFixed(2)}%</span></div></div>
   <div class="reason">${R.cur.r.map(x=>"▸ <b>"+x+"</b>").join("<br>")}<br>▸ Plan: wait for price in the zone plus a bullish ${state.tf.toUpperCase()} close. No fill = no trade.</div>`;
   const b=R.bt;$("#bt").innerHTML=`<h3><span style="color:${C.p}">SIGNAL TRACK RECORD</span><span class="k2">${state.tf.toUpperCase()}</span></h3>
@@ -174,7 +174,9 @@ function sideCards(){
 function todo(){const R=an[state.coin+state.tf];if(!R)return;const p=R.price,z=R.ez,el=$("#todo");let t,c,sub="";
   const zs=`${fmt(z.lo)}–${fmt(z.hi)}`;
   if(R.bias.startsWith("AVOID")||(R.bias==="NEUTRAL"&&R.cur.s<50)||p<R.stop){t="NO SETUP / STAY OUT";c="#8a96b8";sub="No trade right now. Nothing to do.";}
-  else if(p>=z.lo&&p<=z.hi){t="BUY NOW: price is in the buy zone";c=C.g;sub=`Confirm with a bullish ${state.tf.toUpperCase()} candle close. Zone ${zs} · stop ${fmt(R.stop)} · take profit ${fmt(R.tp1)}`;}
+  else if(p>=z.lo&&p<=z.hi){const lb=R.k[R.k.length-2],T=state.tf.toUpperCase(),ok=lb&&lb.close>lb.open&&lb.close>=z.lo;
+    t=ok?"BUY NOW: price is in the zone and the last "+T+" candle closed bullish":"IN ZONE: buy only after a bullish "+T+" close";c=ok?C.g:"#9dffc4";
+    sub=`Zone ${zs} · stop ${fmt(R.stop)} · Take profit 1 ${fmt(R.tp1)} · Take profit 2 ${fmt(R.tp2)}`;}
   else if(p>z.hi){t=`WAIT: price is above the buy zone, buy only if it drops to ${zs}`;c=C.y;sub=`Needs to fall ${((p-z.hi)/p*100).toFixed(2)}% to reach the zone. Don't buy up here.`;}
   else{t=`WAIT: price is below the buy zone`;c=C.y;sub=`Buy only after it climbs back into ${zs}.`;}
   el.style.borderColor=c;el.style.boxShadow=`0 0 18px ${c}55`;
