@@ -1,7 +1,8 @@
 "use strict";
 const COINS=["BTC","ETH","KAS","XRP"], TFS={"1h":3600,"4h":14400,"1d":86400}, HTF={"1h":"4h","4h":"1d","1d":"1d"};
 const C={g:"#39ff88",r:"#ff3b5c",c:"#22e6ff",p:"#b45cff",y:"#ffd447",m:"#6f80aa",t:"#d8e6ff"};
-let state={coin:"BTC",tf:"4h"}, LY={ema:false,bb:false,vw:false,vp:false,sr:false,pdw:false,hist:false}, cache={}, ctx=null, an={};
+const DEF={ema:false,bb:false,vw:false,vp:false,sr:true,pdw:false,hist:false,vol:true,osc:false};
+let state={coin:(new URLSearchParams(location.search).get("coin")||"BTC").toUpperCase(),tf:"4h"}, LY={...DEF}, MORE=false, cache={}, ctx=null, an={};
 const $=s=>document.querySelector(s);
 const fmt=(v)=>v==null||isNaN(v)?"–":v>=1000?v.toLocaleString(undefined,{maximumFractionDigits:0}):v>=10?v.toFixed(2):v>=1?v.toFixed(3):v.toFixed(5);
 
@@ -97,38 +98,38 @@ function analyze(k,hk,tf,coin){
 }
 
 // ---------- CHARTS ----------
-const LW=LightweightCharts,base={layout:{background:{type:"solid",color:"transparent"},textColor:C.m,fontFamily:"JetBrains Mono, monospace"},grid:{vertLines:{color:"#1a234255"},horzLines:{color:"#1a234255"}},rightPriceScale:{borderColor:"#1b2a55"},timeScale:{borderColor:"#1b2a55",timeVisible:true},crosshair:{mode:0}};
+const LW=LightweightCharts,base={layout:{background:{type:"solid",color:"transparent"},textColor:"#a9bbea",fontSize:innerWidth<600?12:14,fontFamily:"JetBrains Mono, monospace"},grid:{vertLines:{color:"#2a3f8a22"},horzLines:{color:"#2a3f8a33"}},rightPriceScale:{borderColor:"#1b2a55"},timeScale:{borderColor:"#1b2a55",timeVisible:true},crosshair:{mode:0}};
 const mainEl=$("#main"),ch=LW.createChart(mainEl,{...base,autoSize:true});
 const rc=LW.createChart($("#rsi"),{...base,autoSize:true,timeScale:{visible:false}}),mc=LW.createChart($("#macd"),{...base,autoSize:true,timeScale:{visible:false}});
 const S={cs:ch.addCandlestickSeries({upColor:C.g,downColor:C.r,wickUpColor:C.g,wickDownColor:C.r,borderVisible:false}),
  vol:ch.addHistogramSeries({priceScaleId:"v",priceFormat:{type:"volume"},lastValueVisible:false,priceLineVisible:false}),
- e20:ch.addLineSeries({color:"#22e6ff66",lineWidth:1,priceLineVisible:false,lastValueVisible:false}),e50:ch.addLineSeries({color:"#b45cffaa",lineWidth:1,priceLineVisible:false,lastValueVisible:false}),e200:ch.addLineSeries({color:"#ffd44777",lineWidth:1,priceLineVisible:false,lastValueVisible:false}),
+ e20:ch.addLineSeries({color:"#b45cffaa",lineWidth:1,priceLineVisible:false,lastValueVisible:false}),e50:ch.addLineSeries({color:"#22e6ff",lineWidth:4,priceLineVisible:false,lastValueVisible:false}),e200:ch.addLineSeries({color:"#ffd447",lineWidth:4,priceLineVisible:false,lastValueVisible:false}),
  vw:ch.addLineSeries({color:"#ffffffaa",lineWidth:1,lineStyle:2,priceLineVisible:false,lastValueVisible:false}),
  bu:ch.addLineSeries({color:"#22e6ff44",lineWidth:1,priceLineVisible:false,lastValueVisible:false}),bl:ch.addLineSeries({color:"#22e6ff44",lineWidth:1,priceLineVisible:false,lastValueVisible:false}),
  rsi:rc.addLineSeries({color:C.p,lineWidth:2,priceLineVisible:false}),mh:mc.addHistogramSeries({priceLineVisible:false,lastValueVisible:false}),mm:mc.addLineSeries({color:C.c,lineWidth:1,priceLineVisible:false,lastValueVisible:false}),ms:mc.addLineSeries({color:"#ff8a3d",lineWidth:1,priceLineVisible:false,lastValueVisible:false})};
-ch.priceScale("v").applyOptions({scaleMargins:{top:.82,bottom:0}});
+ch.priceScale("v").applyOptions({scaleMargins:{top:.9,bottom:0}});
 [70,30].forEach(x=>S.rsi.createPriceLine({price:x,color:"#6f80aa88",lineStyle:2,lineWidth:1,axisLabelVisible:false}));
 let syncing=false;[ch,rc,mc].forEach(a=>a.timeScale().subscribeVisibleLogicalRangeChange(r=>{if(syncing||!r)return;syncing=true;[ch,rc,mc].forEach(b=>b!==a&&b.timeScale().setVisibleLogicalRange(r));syncing=false;drawOv()}));
 let plines=[];
 function ln(arr,k){return arr.map((v,i)=>v==null?{time:k[i].time}:{time:k[i].time,value:v});}
 function render(){
   const R=an[state.coin+state.tf];if(!R)return;const k=R.k,pf=R.price<1?{type:"price",precision:5,minMove:1e-5}:R.price<10?{type:"price",precision:4,minMove:1e-4}:{type:"price",precision:2,minMove:.01};
-  S.cs.applyOptions({priceFormat:pf,autoscaleInfoProvider:orig=>{const r=orig();if(!r||!r.priceRange)return r;r.priceRange.minValue=Math.min(r.priceRange.minValue,R.stop);r.priceRange.maxValue=Math.max(r.priceRange.maxValue,R.tp2);return r;}});S.cs.setData(k.map(({time,open,high,low,close})=>({time,open,high,low,close})));
-  S.vol.setData(k.map(b=>({time:b.time,value:b.volume,color:b.close>=b.open?"#39ff8855":"#ff3b5c55"})));
+  S.cs.applyOptions({priceFormat:pf,autoscaleInfoProvider:orig=>{const r=orig();if(!r||!r.priceRange)return r;const pad=(R.tp2-R.stop)*0.06;r.priceRange.minValue=Math.min(r.priceRange.minValue,R.stop-pad);r.priceRange.maxValue=Math.max(r.priceRange.maxValue,R.tp2+pad);return r;}});S.cs.setData(k.map(({time,open,high,low,close})=>({time,open,high,low,close})));
+  S.vol.setData(k.map(b=>({time:b.time,value:b.volume,color:b.close>=b.open?"#39ff8830":"#ff3b5c30"})));
   S.e20.setData(ln(R.e20,k));S.e50.setData(ln(R.e50,k));S.e200.setData(ln(R.e200,k));S.vw.setData(ln(R.VW,k));
   S.bu.setData(ln(R.B.map(x=>x&&x.u),k));S.bl.setData(ln(R.B.map(x=>x&&x.l),k));
   S.rsi.setData(ln(R.R,k));S.mh.setData(R.M.h.map((v,i)=>v==null?{time:k[i].time}:{time:k[i].time,value:v,color:v>=0?"#39ff8899":"#ff3b5c99"}));S.mm.setData(ln(R.M.m,k));S.ms.setData(ln(R.M.sig,k));
-  S.vw.applyOptions({visible:LY.vw});S.e20.applyOptions({visible:LY.ema});S.e200.applyOptions({visible:LY.ema});S.cs.applyOptions({priceLineWidth:2,priceLineStyle:0,priceLineColor:"#ffffff"});S.bu.applyOptions({visible:LY.bb});S.bl.applyOptions({visible:LY.bb});
+  S.vw.applyOptions({visible:LY.vw});S.e20.applyOptions({visible:LY.ema});S.vol.applyOptions({visible:LY.vol});$("#rsi").style.display=$("#macd").style.display=LY.osc?"block":"none";S.cs.applyOptions({priceLineWidth:2,priceLineStyle:0,priceLineColor:"#ffffff"});S.bu.applyOptions({visible:LY.bb});S.bl.applyOptions({visible:LY.bb});
   S.cs.setMarkers(LY.hist?R.mk.map(({time,position,color})=>({time,position,color,shape:"circle",size:0.5})):[]);
   plines.forEach(l=>S.cs.removePriceLine(l));plines=[];
-  const add=(price,color,title,style=2)=>price&&plines.push(S.cs.createPriceLine({price,color,lineWidth:1,lineStyle:style,title,axisLabelVisible:true}));
+  const add=(price,color,title,style=2,lw=1)=>price&&plines.push(S.cs.createPriceLine({price,color,lineWidth:lw,lineStyle:style,title,axisLabelVisible:true}));
   const rr=x=>((x-R.eMid)/R.risk).toFixed(1);
   if(LY.pdw){if(R.pdw.pd){add(R.pdw.pd.h,"#ff8a3d","PDH");add(R.pdw.pd.l,"#22e6ff","PDL")}if(R.pdw.pw){add(R.pdw.pw.h,"#ff8a3d","PWH",1);add(R.pdw.pw.l,"#22e6ff","PWL",1)}}
-  if(LY.sr){R.L.sup.slice(0,2).forEach(s=>add(s.p,"#39ff8899","S",0));R.L.res.slice(0,2).forEach(s=>add(s.p,"#ff3b5c99","R",0));}
-  add(R.stop,"#ff3b5c","STOP "+fmt(R.stop),0);add(R.tp1,"#ff9a3d","Take profit 1 "+fmt(R.tp1)+" ("+rr(R.tp1)+"R)",0);add(R.tp2,"#ff9a3d","Take profit 2 "+fmt(R.tp2)+" ("+rr(R.tp2)+"R)",0);
-  plines.push(S.cs.createPriceLine({price:R.ez.hi,color:"#39ff88",lineWidth:1,lineVisible:false,title:"BUY "+fmt(R.ez.lo)+"–"+fmt(R.ez.hi),axisLabelVisible:true}));
-  const N=k.length;ch.timeScale().setVisibleLogicalRange({from:N-(innerWidth<600?90:160),to:N+8});
-  $("#legend").innerHTML=`<span style="color:#ffffff">━PRICE</span> <span style="color:${C.p}">EMA50</span> <span style="color:#39ff88">▮BUY</span> <span style="color:#ff3b5c">━STOP</span> <span style="color:#ff9a3d">━Take profit</span> · <span class="k2">${cache[state.coin+state.tf]?.src||""}</span>`;
+  if(LY.sr){const sp=(p,c,t)=>plines.push(S.cs.createPriceLine({price:p,color:c,lineWidth:1,lineStyle:2,title:t,axisLabelVisible:false}));const s0=R.L.sup.find(s=>s.p<R.ez.lo-0.3*R.A[R.A.length-1]);if(s0)sp(s0.p,"#8fb4ff","Support");const r0=R.L.res[0];if(r0)sp(r0.p,"#ff9ab0","Resistance");}
+  add(R.stop,"#ff2d4d","STOP (sell here if wrong)",0,4);add(R.tp1,"#39ff88","Take profit 1 (sell some)",0,3);add(R.tp2,"#39ff88","Take profit 2 (sell the rest)",0,3);
+  plines.push(S.cs.createPriceLine({price:R.ez.hi,color:"#39ff88",lineWidth:1,lineVisible:false,title:"",axisLabelVisible:false}));
+  const N=k.length;ch.timeScale().setVisibleLogicalRange({from:N-(innerWidth<600?45:70),to:N+8});
+  $("#legend").innerHTML=`<span style="color:#22e6ff">━50 EMA</span> <span style="color:#ffd447">━200 EMA</span> <span style="color:#8fb4ff">┄Support</span> <span style="color:#ff9ab0">┄Resistance</span> ${innerWidth<600?"":`· <span class="k2">${cache[state.coin+state.tf]?.src||""}</span>`}`;
   sideCards();todo();requestAnimationFrame(drawOv);
 }
 // overlay: zones + volume profile
@@ -139,8 +140,11 @@ function drawOv(){
   const band=(lo,hi,fill,stroke,label,x0=0)=>{const a=y(hi),b=y(lo);if(a==null||b==null)return;g.fillStyle=fill;g.fillRect(x0,a,W-x0,b-a);g.strokeStyle=stroke;g.setLineDash([4,4]);g.strokeRect(x0,a,W-x0,b-a);g.setLineDash([]);if(label){g.fillStyle=stroke;g.font="10px JetBrains Mono, monospace";g.fillText(label,x0+6,a+12)}};
   if(LY.vp)R.vp.hvn.forEach(z=>band(z.lo,z.hi,"#b45cff12","#b45cff55","HVN"));
   const x0=Math.max(0,(ch.timeScale().logicalToCoordinate(R.k.length-12)??W*0.7));
-  {const a=y(R.ez.hi),b=y(R.ez.lo);if(a!=null&&b!=null){const hh=Math.max(2,b-a);const inZ=R.price>=R.ez.lo&&R.price<=R.ez.hi;g.globalAlpha=inZ?1:0.35;g.fillStyle=inZ?"#39ff8840":"#39ff8818";g.fillRect(x0,a,W-x0,hh);g.strokeStyle="#39ff88";g.lineWidth=1;g.strokeRect(x0+.5,a+.5,W-x0-1,hh-1);
-   g.font="bold 11px JetBrains Mono, monospace";const t="BUY ZONE";const tw=g.measureText(t).width;g.fillStyle="#05070fd0";g.fillRect(x0+4,a-16,tw+8,14);g.fillStyle="#39ff88";g.fillText(t,x0+8,a-5);g.globalAlpha=1;}}
+  {const a=y(R.ez.hi),b=y(R.ez.lo);if(a!=null&&b!=null){const mh=innerWidth<600?26:34;let a2=a,hh=b-a;if(hh<mh){a2=(a+b)/2-mh/2;hh=mh}const inZ=R.price>=R.ez.lo&&R.price<=R.ez.hi;
+   g.fillStyle=inZ?"rgba(57,255,136,0.38)":"rgba(57,255,136,0.28)";g.fillRect(0,a2,W,hh);
+   g.strokeStyle="#39ff88";g.lineWidth=3;g.shadowColor="#39ff88";g.shadowBlur=10;g.strokeRect(1.5,a2+1.5,W-3,hh-3);g.shadowBlur=0;
+   const fs=innerWidth<600?12:15;g.font="bold "+fs+"px JetBrains Mono, monospace";const t="BUY ZONE $"+fmt(R.ez.lo)+"–$"+fmt(R.ez.hi);const tw=g.measureText(t).width;
+   const cy=Math.max(2,a2-fs-12);g.fillStyle="#39ff88";g.fillRect(8,cy,tw+16,fs+8);g.fillStyle="#04101a";g.fillText(t,16,cy+fs+1);}}
   // volume profile histogram on right
   const vp=R.vp;if(LY.vp)vp.v.forEach((v,i)=>{const a=y(vp.lo+(i+1)*vp.w),b=y(vp.lo+i*vp.w);if(a==null||b==null)return;const L=v/vp.mx*W*0.18;g.fillStyle=vp.hvn.some(z=>Math.abs(z.lo-(vp.lo+i*vp.w))<vp.w/2)?"#b45cff66":"#22e6ff22";g.fillRect(W-L,a,L,Math.max(1,b-a-1))});
 }
@@ -180,9 +184,10 @@ function todo(){const R=an[state.coin+state.tf];if(!R)return;const p=R.price,z=R
   else if(p>z.hi){t=`WAIT: price is above the buy zone, buy only if it drops to ${zs}`;c=C.y;sub=`Needs to fall ${((p-z.hi)/p*100).toFixed(2)}% to reach the zone. Don't buy up here.`;}
   else{t=`WAIT: price is below the buy zone`;c=C.y;sub=`Buy only after it climbs back into ${zs}.`;}
   el.style.borderColor=c;el.style.boxShadow=`0 0 18px ${c}55`;
-  el.innerHTML=`<div class="k2">${state.coin} · ${state.tf.toUpperCase()}</div><div class="badge" style="color:${c};text-shadow:0 0 10px ${c}88">${t}</div><div class="pnow">Price now: <b>${fmt(p)}</b></div><div class="k2">${sub}</div>`;}
+  el.innerHTML=`<div class="k2">WHAT TO DO NOW · ${state.coin} · ${state.tf.toUpperCase()}</div><div class="badge" style="color:${c};text-shadow:0 0 10px ${c}88">${t}</div><div class="pnow">Price now: <b>${fmt(p)}</b></div><div class="k2">${sub}</div>`;}
 document.querySelectorAll("#layers input").forEach(i=>i.onchange=()=>{LY[i.dataset.l]=i.checked;render()});
-$("#lybtn").onclick=()=>$("#layers").classList.toggle("open");
+$("#lybtn").onclick=()=>{MORE=!MORE;const b=$("#lybtn");b.classList.toggle("on",MORE);b.textContent="More indicators: "+(MORE?"ON":"OFF");
+  Object.keys(LY).forEach(k=>LY[k]=MORE?true:DEF[k]);document.querySelectorAll("#layers input").forEach(i=>i.checked=LY[i.dataset.l]);$("#layers").classList.toggle("open",MORE);render();};
 // ---------- MACRO ----------
 async function loadCtx(){try{ctx=await j("data/context.json?"+Date.now())}catch(e){ctx=null}
   if(!ctx){$("#macro").innerHTML='<span class="k2">macro context unavailable</span>';return}const m=ctx.macro,cell=(k,v,cls="")=>`<div class="mc"><div class="k">${k}</div><div class="v ${cls}">${v}</div></div>`,tr=x=>x?.trend==="up"?"up":x?.trend==="down"?"dn":"nt";
