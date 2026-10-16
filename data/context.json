@@ -1,56 +1,56 @@
 {
- "updated": "2026-10-16T12:15:41+00:00",
+ "updated": "2026-10-16T17:19:22+00:00",
  "coins": {
   "BTC": {
    "src": "OKX perp",
-   "funding": 4.71646175236e-05,
-   "oi_usd": 2451805079.764007
+   "funding": 8.9265133869e-05,
+   "oi_usd": 2433870499.5283585
   },
   "ETH": {
    "src": "OKX perp",
-   "funding": 7.2337459222e-06,
-   "oi_usd": 1417423246.2505543
+   "funding": 4.55506466879e-05,
+   "oi_usd": 1388734336.077775
   },
   "XRP": {
    "src": "OKX perp",
-   "funding": 9.12398059518e-05,
-   "oi_usd": 83883327.56439997
+   "funding": 7.25098662227e-05,
+   "oi_usd": 82552626.05939999
   },
   "KAS": {
    "src": "Gate.io perp",
-   "funding": 8e-05,
-   "oi_usd": 5936661.9
+   "funding": 0.0001,
+   "oi_usd": 5716610.34
   }
  },
  "macro": {
   "dxy": {
-   "last": 101.68,
-   "chg5d": -0.52,
-   "ema50": 100.88,
-   "ema200": 99.81,
+   "last": 101.94,
+   "chg5d": -0.26,
+   "ema50": 100.89,
+   "ema200": 99.82,
    "trend": "up"
   },
   "spx": {
-   "last": 7744.06,
-   "chg5d": -0.27,
-   "ema50": 7680.71,
-   "ema200": 7349.17,
-   "trend": "up"
+   "last": 7655.52,
+   "chg5d": -2.0,
+   "ema50": 7679.89,
+   "ema200": 7352.22,
+   "trend": "mixed"
   },
   "ndx": {
-   "last": 26713.03,
-   "chg5d": -1.77,
-   "ema50": 26639.28,
-   "ema200": 25289.67,
-   "trend": "up"
+   "last": 26166.05,
+   "chg5d": -4.39,
+   "ema50": 26621.39,
+   "ema200": 25298.39,
+   "trend": "mixed"
   },
-  "btc_dom": 59.24,
-  "mcap_chg24h": -0.62,
+  "btc_dom": 59.29,
+  "mcap_chg24h": -3.7,
   "fng": {
    "value": 63,
    "label": "Greed"
   },
-  "risk_score": 1,
+  "risk_score": -1,
   "regime": "NEUTRAL"
  }
 }
