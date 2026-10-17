@@ -1,25 +1,25 @@
 {
- "updated": "2026-10-17T04:09:47+00:00",
+ "updated": "2026-10-17T09:10:54+00:00",
  "coins": {
   "BTC": {
    "src": "OKX perp",
-   "funding": 0.0001,
-   "oi_usd": 2485353277.9794483
+   "funding": 6.37036075014e-05,
+   "oi_usd": 2474274181.782007
   },
   "ETH": {
    "src": "OKX perp",
-   "funding": 6.39191541514e-05,
-   "oi_usd": 1428387203.8040047
+   "funding": 6.4027034153e-06,
+   "oi_usd": 1434584456.8561244
   },
   "XRP": {
    "src": "OKX perp",
-   "funding": 7.01567722597e-05,
-   "oi_usd": 86045186.43499997
+   "funding": 3.53462416327e-05,
+   "oi_usd": 86481484.88759999
   },
   "KAS": {
    "src": "Gate.io perp",
    "funding": 0.0001,
-   "oi_usd": 5796585.828
+   "oi_usd": 5731303.116
   }
  },
  "macro": {
@@ -44,8 +44,8 @@
    "ema200": 25307.67,
    "trend": "mixed"
   },
-  "btc_dom": 59.3,
-  "mcap_chg24h": -3.4,
+  "btc_dom": 59.32,
+  "mcap_chg24h": -3.58,
   "fng": {
    "value": 55,
    "label": "Greed"
