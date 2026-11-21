@@ -1,31 +1,31 @@
 {
- "updated": "2026-11-21T01:20:53+00:00",
+ "updated": "2026-11-21T09:35:01+00:00",
  "coins": {
   "BTC": {
    "src": "OKX perp",
-   "funding": -7.52235752622e-05,
-   "oi_usd": 1965549622.1590686
+   "funding": -6.24447945153e-05,
+   "oi_usd": 1929026560.5125477
   },
   "ETH": {
    "src": "OKX perp",
-   "funding": -0.0001969792789683,
-   "oi_usd": 1155611099.4766836
+   "funding": -2.05220845055e-05,
+   "oi_usd": 1093873992.4173627
   },
   "XRP": {
    "src": "OKX perp",
-   "funding": -4.92091457111e-05,
-   "oi_usd": 62910285.49680001
+   "funding": -1.35307151439e-05,
+   "oi_usd": 60760609.64480001
   },
   "KAS": {
    "src": "Gate.io perp",
-   "funding": 5.19e-05,
-   "oi_usd": 3568413.6900000004
+   "funding": 0.0001,
+   "oi_usd": 3324549.12
   }
  },
  "macro": {
   "dxy": {
-   "last": 103.84,
-   "chg5d": 0.42,
+   "last": 103.81,
+   "chg5d": 0.39,
    "ema50": 101.97,
    "ema200": 100.53,
    "trend": "up"
@@ -44,8 +44,8 @@
    "ema200": 25260.62,
    "trend": "mixed"
   },
-  "btc_dom": 57.87,
-  "mcap_chg24h": -7.16,
+  "btc_dom": 57.54,
+  "mcap_chg24h": -7.97,
   "fng": {
    "value": 12,
    "label": "Extreme Fear"
